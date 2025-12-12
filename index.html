@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MR Deposit</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
+body{background:#0d0f1a;color:#fff;transition:.4s;}
+
+#loader{
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    background:#0d0f1a;display:flex;align-items:center;justify-content:center;
+    z-index:9999;
+}
+.spinner{
+    width:70px;height:70px;border:8px solid #2d7dff55;border-top-color:#2d7dff;
+    border-radius:50%;animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.container{
+    max-width:520px;margin:40px auto;background:rgba(255,255,255,0.07);
+    padding:35px;border-radius:22px;backdrop-filter:blur(18px);
+    box-shadow:0 0 25px #0008,0 0 60px #2d7dff33 inset;animation:fade .6s ease;
+}
+@keyframes fade{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+
+.title{
+    text-align:center;font-size:32px;margin-bottom:15px;
+    text-shadow:0 0 12px #2d7dff;
+}
+
+.info{
+    text-align:center;font-size:15px;line-height:22px;color:#c8c8c8;
+    margin-bottom:20px;
+}
+
+.logo-box{display:flex;justify-content:center;gap:25px;margin-bottom:25px;}
+.logo{
+    width:140px;height:80px;border-radius:14px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    border:2px solid #ffffff33;background:#11182c;transition:.3s;padding:5px;
+    color:#fff;font-size:22px;font-weight:bold;
+}
+.logo:hover{transform:scale(1.05);background:#2d7dff22;}
+
+.btn{
+    width:100%;padding:14px;margin-top:15px;background:#2d7dff;color:#fff;
+    border:none;border-radius:12px;font-size:18px;cursor:pointer;transition:.3s;
+}
+.btn:hover{background:#1a5be0;box-shadow:0 0 20px #2d7dff;}
+
+.input-group{margin:18px 0;}
+input{
+    width:100%;padding:14px;border-radius:10px;border:1px solid #2d7dff55;
+    background:#111523;color:#fff;font-size:16px;
+}
+
+.page{display:none;}
+
+.success{
+    font-size:28px;color:#1aff7a;text-shadow:0 0 12px #1aff7a;text-align:center;
+    margin-bottom:20px;
+}
+
+.status-box{
+    padding:16px;border-radius:14px;background:#191e33;margin:12px 0;
+    box-shadow:0 0 12px #0008;font-size:15px;line-height:22px;
+}
+.method-tag{
+    padding:5px 12px;border-radius:8px;background:#2d7dff33;margin-top:6px;
+    display:inline-block;font-size:13px;
+}
+
+footer{
+    width:100%;padding:20px;background:#0b0d15;border-top:1px solid #1e2236;
+    text-align:center;color:#8a8fa6;font-size:15px;margin-top:50px;
+}
+footer span{
+    color:#9aa0b5;
+    background:#ffffff0a;
+    padding:5px 15px;
+    border-radius:20px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:.3s;
+}
+footer span:hover{background:#ffffff15;}
+
+.admin-table{width:100%;margin-top:20px;border-collapse:collapse;}
+.admin-table th,.admin-table td{
+    border:1px solid #2d7dff44;padding:10px;text-align:center;font-size:15px;
+}
+.admin-btn{padding:6px 12px;border:none;border-radius:8px;color:#fff;cursor:pointer;}
+.sbtn{background:#1aff7a;} .rbtn{background:#ff3b3b;}
+</style>
+</head>
+
+<body>
+
+<div id="loader"><div class="spinner"></div></div>
+<script>
+setTimeout(()=>{document.getElementById("loader").style.display="none";},1200);
+</script>
+
+<div class="container" id="home">
+    <h1 class="title">MR Deposit</h1>
+
+    <div class="info">
+        নিরাপদ ডিজিটাল জমা (Deposit) প্ল্যাটফর্ম।  
+        বিকাশ / নগদ দিয়ে দ্রুত ও সুরক্ষিত ডিপোজিট করুন।  
+        সব ট্রানজেকশন অ্যাডমিন দ্বারা রিভিউ করা হবে।
+    </div>
+
+    <div class="logo-box">
+        <div class="logo" onclick="selectMethod('বিকাশ')">বিকাশ</div>
+        <div class="logo" onclick="selectMethod('নগদ')">নগদ</div>
+    </div>
+
+    <button class="btn" onclick="openHistory()">Transaction History</button>
+</div>
+
+<div class="container page" id="page2">
+<h2 id="methodTitle"></h2>
+<div class="info">আপনার ইউজার আইডি এবং ডিপোজিট এমাউন্ট দিন</div>
+<div class="input-group"><input id="userId" placeholder="User ID"></div>
+<div class="input-group"><input id="amount" type="number" placeholder="Amount"></div>
+<button class="btn" onclick="goNext()">Next</button>
+</div>
+
+<div class="container page" id="page3">
+<h3>এই নাম্বারে টাকা পাঠান</h3>
+<p id="payNumber" style="font-size:22px;margin:12px 0;"></p>
+<input id="trxId" placeholder="Transaction ID">
+<div style="background:#1a1d2c;padding:12px;border-radius:10px;margin-top:10px;">
+ট্রানজেকশন সম্পন্ন হলে Transaction ID লিখে Submit দিন।
+</div>
+<button class="btn" onclick="submitDeposit()">Submit</button>
+</div>
+
+<div class="container page" id="successPage">
+<div class="success">✔ Deposit Successful</div>
+<div class="info">আপনার ডিপোজিট রিভিউ হচ্ছে।</div>
+<button class="btn" onclick="goHome()">Home</button>
+</div>
+
+<div class="container page" id="historyPage">
+<h2>Transaction History</h2>
+<div id="historyList"></div>
+<button class="btn" onclick="goHome()">Home</button>
+</div>
+
+<div class="container page" id="adminLoginPage">
+<h3>Admin Login</h3>
+<input id="adminPass" type="password" placeholder="Password">
+<button class="btn" onclick="checkAdmin()">Login</button>
+</div>
+
+<div class="container page" id="adminPanel">
+<h2>Admin Panel</h2>
+
+<input id="searchBox" placeholder="Search by User ID"
+style="width:100%;padding:12px;border-radius:10px;border:1px solid #2d7dff55;
+background:#111523;color:#fff;font-size:16px;margin-bottom:15px;"
+onkeyup="searchUser()">
+
+<table class="admin-table" id="adminTable"></table>
+
+<button class="btn" onclick="goHome()">Home</button>
+</div>
+
+<footer>
+© 2025 MR Deposit • <span onclick="adminLogin()">All reserved By Mr Deposit Ltd</span>
+</footer>
+
+<script>
+let method="",payNum="01700000000";
+let deposits = JSON.parse(localStorage.getItem("deposits")||"[]");
+
+function show(x){
+    document.querySelectorAll(".container").forEach(a=>a.style.display="none");
+    document.getElementById(x).style.display="block";
+}
+
+function selectMethod(m){
+    method=m;
+    methodTitle.innerText=m+" Deposit";
+    show("page2");
+}
+
+function openHistory(){
+    historyList.innerHTML="";
+    deposits.forEach(d=>{
+        historyList.innerHTML+=`
+        <div class="status-box">
+            ইউজার আইডি: ${d.uid}<br>
+            এমাউন্ট: ${d.amt}<br>
+            ট্রানজেকশন আইডি: ${d.trx}<br>
+            <span class="method-tag">${d.method}</span><br>
+            স্ট্যাটাস: <b>${d.status}</b><br>
+            তারিখ: ${d.date}
+        </div>`;
+    });
+    show("historyPage");
+}
+
+function goNext(){
+    if(!userId.value||!amount.value)return alert("Fill All");
+    payNumber.innerText=payNum;
+    show("page3");
+}
+
+function submitDeposit(){
+    if(!trxId.value)return alert("Enter TRX ID");
+
+    deposits.push({
+        uid: userId.value,
+        amt: amount.value,
+        trx: trxId.value,
+        method,
+        status: "Pending",
+        date: new Date().toLocaleDateString()
+    });
+
+    localStorage.setItem("deposits", JSON.stringify(deposits));
+    show("successPage");
+}
+
+function goHome(){show("home");}
+
+function adminLogin(){show("adminLoginPage");}
+
+function checkAdmin(){
+    if(adminPass.value==="Mradmin123") loadAdmin();
+    else alert("Wrong Password");
+}
+
+function loadAdmin(){
+    loadTable();
+    show("adminPanel");
+}
+
+function loadTable(){
+    adminTable.innerHTML=`<tr>
+        <th>User</th><th>Amount</th><th>Method</th><th>Transaction ID</th><th>Status</th><th>Action</th>
+    </tr>`;
+
+    deposits.forEach((d,i)=>{
+        adminTable.innerHTML+=`
+        <tr>
+            <td>${d.uid}</td>
+            <td>${d.amt}</td>
+            <td>${d.method}</td>
+            <td>${d.trx}</td>
+            <td>${d.status}</td>
+            <td>
+                <button class="admin-btn sbtn" onclick="setStatus(${i},'Success')">Success</button>
+                <button class="admin-btn rbtn" onclick="setStatus(${i},'Rejected')">Reject</button>
+            </td>
+        </tr>`;
+    });
+}
+
+function searchUser(){
+    let key = searchBox.value.toLowerCase();
+    adminTable.innerHTML=`<tr>
+        <th>User</th><th>Amount</th><th>Method</th><th>Transaction ID</th><th>Status</th><th>Action</th>
+    </tr>`;
+    deposits.forEach((d,i)=>{
+        if(d.uid.toLowerCase().includes(key)){
+            adminTable.innerHTML+=`
+            <tr>
+                <td>${d.uid}</td>
+                <td>${d.amt}</td>
+                <td>${d.method}</td>
+                <td>${d.trx}</td>
+                <td>${d.status}</td>
+                <td>
+                    <button class="admin-btn sbtn" onclick="setStatus(${i},'Success')">Success</button>
+                    <button class="admin-btn rbtn" onclick="setStatus(${i},'Rejected')">Reject</button>
+                </td>
+            </tr>`;
+        }
+    });
+}
+
+function setStatus(i,v){
+    deposits[i].status=v;
+    localStorage.setItem("deposits", JSON.stringify(deposits));
+    loadAdmin();
+}
+</script>
+
+</body>
+</html
